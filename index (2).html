@@ -1,0 +1,223 @@
+<h5>[01:32 pm, 20/3/1939]</h5>
+<p>As we stand at the threshold of what promises to be the final chapter of our physical togetherness, I can't help but ponder- can anything turely detach the
+ unbreakable bond we have forged? Not the distances that strech before us, nor the trials that await. For haven't we learned that a life without friends is a 
+ life, without stars, whithout light, without direction? and what a luminous constellation we have become illuminating each other's paths, 
+ even when the skies grows dark.
+ Our memories are the stars that will continue to shine bright, guiding us back to one another, no matter where life takes. </p>
+<p>Yes we know that our roads will get divereged after few months. Though we can't stop time from doing its work. Time is known to break bonds and create new relationships. So lets not think about what is 
+going to happen because we cannot change it, but what we can- is to enjoy the present and carry some memories to our future.  </p>
+<p>To me, this year was the best year till now. <b><i>"School friends, the chapters that make life's story unforgettable."</i></b></p>
+<p>This year was a blend of all tastes, beginning with sweetness and concluding with a poignant cry of change.</p>
+We are standing at the quiet end of Class 10, where the same road we once walked together now begins to divide. 
+This year gave us every flavour of life — laughter that felt endless, silences that understood us better than words, mistakes that became lessons,
+ and moments so ordinary that they now feel priceless. We arrived here as classmates, 
+ but we leave as memories stitched into each other’s lives. Even when different paths call our names, 
+ a part of us will always remain in these corridors, these benches, and these friendships.
+ No distance can erase what time has taught us — <b><i>"That some people don’t walk with you forever, but they stay within you, forever.”</b></i>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Forever Friends – Memory Wall</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+    margin:0;
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#667eea,#764ba2);
+    min-height:100vh;
+    color:#fff;
+}
+.container{max-width:900px;margin:auto;padding:40px 20px}
+h1{text-align:center;font-weight:600;margin-bottom:10px}
+.subtitle{text-align:center;opacity:.9;margin-bottom:35px}
+
+.form-card{
+    background:rgba(255,255,255,.15);
+    backdrop-filter:blur(10px);
+    border-radius:15px;
+    padding:25px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);
+    margin-bottom:30px;
+}
+
+input,textarea{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border:none;
+    border-radius:8px;
+    font-size:15px;
+    font-family:'Poppins',sans-serif;
+}
+
+textarea{resize:none;height:90px}
+
+button{
+    background:#ffcc70;
+    color:#333;
+    padding:10px 22px;
+    border:none;
+    border-radius:30px;
+    font-size:15px;
+    cursor:pointer;
+}
+button:hover{background:#ffd98e}
+
+.wall{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:20px;
+}
+
+.card{
+    background:rgba(255,255,255,.2);
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 8px 20px rgba(0,0,0,.2);
+}
+
+.name{font-weight:600;font-size:18px}
+.time{font-size:12px;opacity:.8;margin-bottom:8px}
+.message{font-style:italic;line-height:1.5}
+
+/* CHAT */
+.chat-box{
+    max-height:300px;
+    overflow-y:auto;
+    margin-top:15px;
+}
+.chat-msg{
+    background:rgba(255,255,255,.25);
+    padding:10px 14px;
+    border-radius:12px;
+    margin-bottom:10px;
+}
+.chat-name{font-weight:600;font-size:14px}
+
+footer{text-align:center;margin-top:50px;font-size:14px;opacity:.8}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🌟 Forever Friends 🌟</h1>
+<div class="subtitle">Our last year together — names fade, memories don’t 💙</div>
+
+<!-- MEMORY WALL -->
+<div class="form-card">
+<h3>Add Your Memory</h3>
+<input id="memName" placeholder="Your name">
+<textarea id="memText" placeholder="Your feelings about our friendship…"></textarea>
+<button onclick="addMemory()">Add Memory</button>
+</div>
+
+<div class="wall" id="memoryWall"></div>
+
+<!-- GROUP CHAT -->
+<div class="form-card">
+<h3>💬 Class Group Chat</h3>
+<input id="chatName" placeholder="Your name">
+<textarea id="chatText" placeholder="Type your message…"></textarea>
+<button onclick="sendChat()">Send</button>
+
+<div class="chat-box" id="chatBox"></div>
+</div>
+
+<footer>Made with ❤️ for lifelong memories</footer>
+</div>
+
+<script>
+/* 🔥 FIREBASE CONFIG — REPLACE WITH YOUR OWN 🔥 */
+const firebaseConfig = {
+  apiKey: "AIzaSyCHD9Jks7hGEUBxANY0TG7i8GbVH6I-_Po",
+  authDomain: "forever-friends-6da1f.firebaseapp.com",
+  projectId: "forever-friends-6da1f",
+  storageBucket: "forever-friends-6da1f.firebasestorage.app",
+  messagingSenderId: "1046803175400",
+  appId: "1:1046803175400:web:3490f67c0130d7dbce765d"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+/* MEMORY WALL */
+function addMemory(){
+    const name = memName.value.trim();
+    const text = memText.value.trim();
+    if(!name || !text){ alert("Fill all fields"); return; }
+
+    db.collection("memories").add({
+        name, text,
+        time: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    memName.value = memText.value = "";
+}
+
+db.collection("memories").orderBy("time","desc")
+.onSnapshot(snapshot=>{
+    const wall = document.getElementById("memoryWall");
+    wall.innerHTML = "";
+    snapshot.forEach(doc=>{
+        const d = doc.data();
+        wall.innerHTML += `
+        <div class="card">
+            <div class="name">${d.name}</div>
+            <div class="time">${d.time?.toDate().toLocaleString() || ""}</div>
+            <div class="message">“${d.text}”</div>
+        </div>`;
+    });
+});
+
+/* CHAT */
+function sendChat(){
+    const name = chatName.value.trim();
+    const text = chatText.value.trim();
+    if(!name || !text){ alert("Fill all fields"); return; }
+
+    db.collection("chat").add({
+        name, text,
+        time: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    chatText.value = "";
+}
+
+db.collection("chat").orderBy("time")
+.onSnapshot(snapshot=>{
+    const box = document.getElementById("chatBox");
+    box.innerHTML = "";
+    snapshot.forEach(doc=>{
+        const d = doc.data();
+        box.innerHTML += `
+        <div class="chat-msg">
+            <div class="chat-name">${d.name}</div>
+            <div>${d.text}</div>
+        </div>`;
+    });
+    box.scrollTop = box.scrollHeight;
+});
+</script>
+<p>“This is not an ending, but a quiet promise we leave behind. This little space holds our names, our words,
+ and a piece of our hearts — proof that once, we belonged to the same moment in time.
+ As life pulls us toward different dreams and distant destinations, may this memory remind us that we were never alone on the journey. 
+ Years from now, when you return here, may you smile, pause, and feel the warmth of a friendship that time could never take away. 
+This is — not just a gift, but a piece of us, forever.”</p>
+<p>If time ever carries us too far from this moment, let these words bring us back.
+ This space was created not to hold perfection, but to hold us — our laughter, our growth, 
+ our unfinished sentences, and the bonds we never learned how to name. We may forget dates,
+ chapters, and lessons, but we will never forget how we made each other feel. 
+ As the roads ahead diverge and life asks us to walk alone, may this memory whisper that once, we walked together.
+ This is my way of saying thank you — for the friendship, the moments,
+ and the part of you that will always live within me. This is not goodbye; it is forever</p>
+<h3 style = "text-align: right;">--by Code Alchemist</h3>
+</body>
+</html>
